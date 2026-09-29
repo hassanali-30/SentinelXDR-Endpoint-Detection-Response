@@ -12,15 +12,9 @@ def test_malware_analysis_is_static(tmp_path):
     assert result["sandbox"]["executed"] is False
     assert "pe_signature" in result["findings"]
 
-def test_phishing_triage_flags_attachment(tmp_path):
+def test_phishing_triage_flags_link(tmp_path):
     path = tmp_path / "mail.eml"
-    path.write_text("From: sender@example.test
-Subject: Invoice
-MIME-Version: 1.0
-Content-Type: text/plain
-
-Please review https://example.test/login
-", encoding="utf-8")
+    path.write_text("From: sender@example.test\nSubject: Invoice\nMIME-Version: 1.0\nContent-Type: text/plain\n\nPlease review https://example.test/login\n", encoding="utf-8")
     result = PhishingTriage().analyze(path)
     assert result["urls"]
 
