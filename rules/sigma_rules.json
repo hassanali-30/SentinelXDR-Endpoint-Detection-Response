@@ -1,0 +1,5 @@
+[
+  {"id":"SENTINELXDR-001","title":"Suspicious PowerShell execution","level":"high","tags":["attack.execution","T1059.001"],"detection":{"process_name":"powershell.exe"}},
+  {"id":"SENTINELXDR-002","title":"New executable in startup path","level":"high","tags":["attack.persistence","T1547.001"],"detection":{"event_type":"startup_change","extension":".exe"}},
+  {"id":"SENTINELXDR-003","title":"Credential phishing indicator","level":"medium","tags":["attack.initial-access","T1566"],"detection":{"event_type":"phishing_alert","verdict":"high_risk"}}
+]
