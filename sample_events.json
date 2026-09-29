@@ -1,0 +1,5 @@
+[
+  {"event_type":"process_start","severity":"high","source":"edr","entity":"lab-host","fields":{"process_name":"powershell.exe","command_line":"powershell -File update.ps1"}},
+  {"event_type":"startup_change","severity":"high","source":"fim","entity":"lab-host","fields":{"extension":".exe","path":"startup/demo.exe"}},
+  {"event_type":"phishing_alert","severity":"medium","source":"mail","entity":"analyst","fields":{"verdict":"high_risk"}}
+]
