@@ -64,7 +64,7 @@ class SigmaEngine:
             detection = rule.get("detection", {})
             ok = True
             for field, expected in detection.items():
-                actual = event.fields.get(field)
+                actual = getattr(event, field, event.fields.get(field))
                 if isinstance(expected, list): ok = actual in expected
                 elif isinstance(expected, str) and expected.startswith("*") and expected.endswith("*"): ok = expected.strip("*").lower() in str(actual).lower()
                 else: ok = actual == expected
@@ -167,3 +167,4 @@ def main() -> int:
     return 0
 
 if __name__ == "__main__": raise SystemExit(main())
+
