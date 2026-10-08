@@ -80,11 +80,12 @@ class MalwareAnalyzer:
         data = path.read_bytes()
         ascii_strings = re.findall(rb"[ -~]{6,}", data)
         strings = [s.decode("ascii", "replace")[:200] for s in ascii_strings[:100]]
+        all_strings = b" ".join(ascii_strings).lower()
         findings = []
         if path.suffix.lower() in SUSPICIOUS_EXTENSIONS: findings.append("suspicious_extension")
         if data[:2] == b"MZ": findings.append("pe_signature")
         if entropy(data) >= 7.2: findings.append("high_entropy")
-        if any(x in " ".join(strings).lower() for x in ("powershell", "wscript", "cmd.exe", "http://", "https://")): findings.append("suspicious_string")
+        if any(x in all_strings for x in (b"powershell", b"wscript", b"cmd.exe", b"http://", b"https://")): findings.append("suspicious_string")
         return {"path": str(path), "sha256": sha256_bytes(data), "size": len(data), "entropy": round(entropy(data), 3),
                 "is_pe": data[:2] == b"MZ", "strings": strings, "findings": sorted(set(findings)),
                 "verdict": "suspicious" if findings else "no_static_indicators", "sandbox": {"executed": False, "reason": "static-only safe mode"}}

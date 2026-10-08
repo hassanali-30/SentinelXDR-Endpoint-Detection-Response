@@ -37,3 +37,10 @@ def test_case_timeline_is_ordered(tmp_path):
         c.add("C1", Event("early", "low", "test", "x", {}, "2026-01-01T00:00:00Z"), "early")
         assert [x["summary"] for x in c.timeline("C1")] == ["early", "late"]
     finally: c.close()
+
+
+def test_malware_scan_checks_strings_beyond_preview(tmp_path):
+    path = tmp_path / "sample.bin"
+    path.write_bytes(b"".join([b"benign" + bytes([65 + (i % 20)]) for i in range(101)]) + b" powershell")
+    result = MalwareAnalyzer().analyze(path)
+    assert "suspicious_string" in result["findings"]
