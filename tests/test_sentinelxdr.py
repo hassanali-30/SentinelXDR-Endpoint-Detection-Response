@@ -44,3 +44,26 @@ def test_malware_scan_checks_strings_beyond_preview(tmp_path):
     path.write_bytes(b"".join([b"benign" + bytes([65 + (i % 20)]) for i in range(101)]) + b" powershell")
     result = MalwareAnalyzer().analyze(path)
     assert "suspicious_string" in result["findings"]
+
+
+def test_phishing_triage_normalizes_attachment_extension(tmp_path):
+    path = tmp_path / "mail.eml"
+    path.write_text(
+        "From: sender@example.test\n"
+        "Subject: Attachment\n"
+        "MIME-Version: 1.0\n"
+        "Content-Type: multipart/mixed; boundary=boundary\n\n"
+        "--boundary\n"
+        "Content-Type: text/plain\n\n"
+        "Please review the attachment.\n"
+        "--boundary\n"
+        "Content-Type: application/octet-stream\n"
+        "Content-Disposition: attachment; filename=PAYLOAD.EXE\n"
+        "Content-Transfer-Encoding: base64\n\n"
+        "TVo=\n"
+        "--boundary--\n",
+        encoding="utf-8",
+    )
+    result = PhishingTriage().analyze(path)
+    assert "risky_attachment" in result["reasons"]
+    assert result["risk_score"] >= 45

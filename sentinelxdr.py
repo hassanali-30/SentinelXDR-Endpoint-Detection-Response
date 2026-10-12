@@ -104,7 +104,7 @@ class PhishingTriage:
         reply_to = str(message.get("Reply-To", ""))
         if reply_to and reply_to.lower() not in sender.lower(): risk += 25; reasons.append("reply_to_mismatch")
         if len(urls) >= 3: risk += 15; reasons.append("many_links")
-        if any(Path(a["filename"]).suffix in SUSPICIOUS_EXTENSIONS for a in attachments): risk += 45; reasons.append("risky_attachment")
+        if any(a["extension"] in SUSPICIOUS_EXTENSIONS for a in attachments): risk += 45; reasons.append("risky_attachment")
         if any(re.search(r"(login|verify|urgent|password|invoice)", u, re.I) for u in urls): risk += 20; reasons.append("credential_or_urgency_link")
         return {"subject": str(message.get("Subject", "")), "from": sender, "urls": urls, "attachments": attachments,
                 "risk_score": min(risk, 100), "reasons": reasons, "verdict": "high_risk" if risk >= 50 else ("review" if risk >= 20 else "low_risk")}
