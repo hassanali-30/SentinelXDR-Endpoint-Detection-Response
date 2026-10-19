@@ -67,3 +67,30 @@ def test_phishing_triage_normalizes_attachment_extension(tmp_path):
     result = PhishingTriage().analyze(path)
     assert "risky_attachment" in result["reasons"]
     assert result["risk_score"] >= 45
+
+
+def test_phishing_triage_compares_complete_mailboxes(tmp_path):
+    path = tmp_path / "mail.eml"
+    path.write_text(
+        "From: alerts@example.com.evil.test\n"
+        "Reply-To: alerts@example.com\n"
+        "Subject: Review\n\n"
+        "Routine message.\n",
+        encoding="utf-8",
+    )
+    result = PhishingTriage().analyze(path)
+    assert "reply_to_mismatch" in result["reasons"]
+    assert result["risk_score"] == 25
+
+
+def test_phishing_triage_accepts_same_mailbox_with_display_names(tmp_path):
+    path = tmp_path / "mail.eml"
+    path.write_text(
+        "From: Security Team <alerts@example.com>\n"
+        "Reply-To: SOC Alerts <ALERTS@example.com>\n"
+        "Subject: Review\n\n"
+        "Routine message.\n",
+        encoding="utf-8",
+    )
+    result = PhishingTriage().analyze(path)
+    assert "reply_to_mismatch" not in result["reasons"]

@@ -5,6 +5,7 @@ import argparse, hashlib, json, math, os, re, sqlite3, sys
 from dataclasses import dataclass, asdict
 from email import policy
 from email.parser import BytesParser
+from email.utils import parseaddr
 from pathlib import Path
 from typing import Any
 
@@ -102,7 +103,9 @@ class PhishingTriage:
         risk, reasons = 0, []
         sender = str(message.get("From", ""))
         reply_to = str(message.get("Reply-To", ""))
-        if reply_to and reply_to.lower() not in sender.lower(): risk += 25; reasons.append("reply_to_mismatch")
+        sender_address = parseaddr(sender)[1].strip().casefold()
+        reply_address = parseaddr(reply_to)[1].strip().casefold()
+        if reply_to and reply_address != sender_address: risk += 25; reasons.append("reply_to_mismatch")
         if len(urls) >= 3: risk += 15; reasons.append("many_links")
         if any(a["extension"] in SUSPICIOUS_EXTENSIONS for a in attachments): risk += 45; reasons.append("risky_attachment")
         if any(re.search(r"(login|verify|urgent|password|invoice)", u, re.I) for u in urls): risk += 20; reasons.append("credential_or_urgency_link")
